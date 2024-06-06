@@ -46,13 +46,18 @@ def apiFornecedoresDetalhe(request,id):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    if request.method == 'GET':
+    if request.method == 'GET': #recebe
         serializer = FornecedorSerializer(fornecedor)
         return Response(serializer.data)
-    if request.method == 'PUT':
-        pass
-    if request.method == 'DELETE':
-        pass
+    elif request.method == 'PUT': #atualiza
+        serializer = FornecedorSerializer(fornecedor,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)    
+        return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE': #apaga
+        fornecedor.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 
 @api_view(['GET','PUT','DELETE'])
@@ -67,8 +72,13 @@ def apiCompradoresDetalhe(request,id):
         serializer = CompradorSerializer(comprador)
         return Response(serializer.data)
     if request.method == 'PUT':
-        pass
+        serializer = CompradorSerializer(comprador,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)    
+        return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
-        pass
+        comprador.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
    
         
