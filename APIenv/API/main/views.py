@@ -55,7 +55,7 @@ def apiFornecedoresDetalhe(request,id):
             serializer.save()
             return Response(serializer.data)    
         return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE': #apaga
+    elif request.method == 'DELETE': #apaga IMPORTANTE: preciso restringir o acesso deste metodo
         fornecedor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -71,13 +71,13 @@ def apiCompradoresDetalhe(request,id):
     if request.method == 'GET':
         serializer = CompradorSerializer(comprador)
         return Response(serializer.data)
-    if request.method == 'PUT':
+    elif request.method == 'PUT':
         serializer = CompradorSerializer(comprador,data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)    
         return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         comprador.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
    
