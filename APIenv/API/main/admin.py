@@ -5,5 +5,5 @@ from .models import *
 
 admin.site.register(Fornecedor)
 admin.site.register(Comprador)
-
+admin.site.register(Produto)
                     

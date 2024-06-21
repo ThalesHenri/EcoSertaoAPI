@@ -4,7 +4,8 @@ import json
 Status: Get(V)
         Post(V)
         Put(V)
-        Delete()"""
+        Delete(V)
+        Imagens()"""
 
 
 def postCreateUserForne():
@@ -103,4 +104,26 @@ def deleteTest():
     }
     response = requests.delete(url,headers=headers)
     print("id > "+id+" deletado")
-deleteTest()
+
+
+
+def getProductList():
+    id = '1'
+    entidade = 'produto'
+    url = 'http://127.0.0.1:8000/api/'+entidade+'/'+id+'/'
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    response = requests.get(url,headers=headers,)
+    if response.status_code == 200:
+        try:
+            # Parse the JSON content
+            json_data = response.json()
+            print('JSON Response:', json_data)
+        except ValueError:
+            print('Falha ao carregar arquivo Json')
+    else:
+        print('Deu merda ao coletar os dados ->', response.status_code)
+    
+    
+getProductList()

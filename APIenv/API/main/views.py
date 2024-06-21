@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
-from .models import Fornecedor,Comprador
-from .serializers import FornecedorSerializer,CompradorSerializer
+from .models import Fornecedor,Comprador, Produto
+from .serializers import FornecedorSerializer,CompradorSerializer,ProdutoSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -81,4 +81,39 @@ def apiCompradoresDetalhe(request,id):
         comprador.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
    
+ 
+@api_view(['GET','POST'])
+def apiProdutolista(request):
+    if request.method == 'GET':
+        produto = Produto.objects.all()
+        serializer = ProdutoSerializer(produto, many=True)
         
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        serializer = ProdutoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+@api_view(['GET','PUT','DELETE'])
+def apiProdutosDetalhe(request,id):
+    
+    try:
+        produto = Produto.objects.get(pk=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = ProdutoSerializer(produto)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = ProdutoSerializer(produto,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)    
+        return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        produto.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
