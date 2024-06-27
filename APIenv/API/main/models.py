@@ -34,6 +34,7 @@ class Produto(models.Model):
         (opcao2,'FOB')
         ]
     frete = models.CharField(max_length=3,choices=opcaoEscolhas,default=opcao1)
+    preco = models.DecimalField(max_digits=10, decimal_places=2,default=0.00)
     imagem = models.ImageField(upload_to='midia/')
 
     def __str__(self):
