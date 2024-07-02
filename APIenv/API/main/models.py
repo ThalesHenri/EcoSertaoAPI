@@ -25,7 +25,7 @@ class Produto(models.Model):
     nome = models.CharField(max_length=100)
     dataValid = models.DateField()
     marca = models.CharField(max_length=100)
-    peso = models.DecimalField(max_digits=5, decimal_places=2, unique=True)
+    peso = models.DecimalField(max_digits=5, decimal_places=2)
     quantidade = models.IntegerField()
     opcao1 = 'CIF'
     opcao2 = 'FOB'
