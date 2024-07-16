@@ -4,8 +4,19 @@ from .models import Fornecedor,Comprador, Produto
 from .serializers import FornecedorSerializer,CompradorSerializer,ProdutoSerializer
 from rest_framework.response import Response
 from rest_framework import status
+#DjangoSimpleJWT protected view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
-# Create your views here.
+
+#view in class formart so it is have to use in the url.py "asView()"
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(data={"message": "This is a protected view!"}, status=200)
+
+
 @api_view(['GET','POST'])
 def apiFornecedoresLista(request):
     

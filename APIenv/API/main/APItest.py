@@ -110,7 +110,7 @@ def deleteTest():
 def getProductList():
     id = '1'
     entidade = 'produto'
-    url = 'http://127.0.0.1:8000/api/'+entidade+'/'+id+'/'
+    url = 'http://127.0.0.1:8081/api/'+entidade+'/'+id+'/'
     headers = {
         'Content-Type': 'application/json'
     }
@@ -125,5 +125,23 @@ def getProductList():
     else:
         print('Deu merda ao coletar os dados ->', response.status_code)
     
+def getProtectedJWt():
+    your_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxMTY0NzcxLCJpYXQiOjE3MjExNjM4NzEsImp0aSI6ImY3OGE4MWVhMWJjNzRhZjE5YWI3ZTYyMjA3YzJhMWQ0IiwidXNlcl9pZCI6MX0.ux4FhdMUaDEH_i8z1ktabXaE8PAVMg8KRoYjvc-sR6k'
+    url = 'http://127.0.0.1:8081/api/protected'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {your_token}'
+    }
+    response = requests.get(url,headers=headers,)
+    if response.status_code == 200:
+        try:
+            # Parse the JSON content
+            json_data = response.json()
+            print('JSON Response:', json_data)
+        except ValueError:
+            print('Falha ao carregar arquivo Json')
+    else:
+        print('Deu merda ao coletar os dados ->', response.status_code)
     
-getProductList()
+    
+getProtectedJWt()
