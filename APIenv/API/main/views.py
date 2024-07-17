@@ -7,6 +7,7 @@ from rest_framework import status
 #DjangoSimpleJWT protected view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 #view in class formart so it is have to use in the url.py "asView()"
@@ -16,6 +17,19 @@ class ProtectedView(APIView):
     def get(self, request):
         return Response(data={"message": "This is a protected view!"}, status=200)
 
+
+class UserDetailView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+            # Add other fields as necessary
+        }
+        return Response(user_data)
 
 @api_view(['GET','POST'])
 def apiFornecedoresLista(request):
