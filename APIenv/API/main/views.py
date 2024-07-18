@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from .models import Fornecedor,Comprador, Produto
 from .serializers import FornecedorSerializer,CompradorSerializer,ProdutoSerializer
@@ -31,6 +32,7 @@ class UserDetailView(APIView):
         }
         return Response(user_data)
 
+
 @api_view(['GET','POST'])
 def apiFornecedoresLista(request):
     
@@ -45,9 +47,17 @@ def apiFornecedoresLista(request):
     elif request.method == 'POST':
         serializer = FornecedorSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            fornecedor = Fornecedor(
+                nome=serializer.validated_data['nome'],
+                cnpj=serializer.validated_data['cnpj'],
+                responsavel=serializer.validated_data['responsavel'],
+                cpfResponsavel=serializer.validated_data['cpfResponsavel']
+            )
+            fornecedor.set_password(serializer.validated_data['password'])
+            fornecedor.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET','POST'])
 def apiCompradoresLista(request):
@@ -60,8 +70,16 @@ def apiCompradoresLista(request):
     elif request.method == 'POST':
         serializer = CompradorSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            comprador = Comprador(
+                nome=serializer.validated_data['nome'],
+                cnpj=serializer.validated_data['cnpj'],
+                responsavel=serializer.validated_data['responsavel'],
+                cpfResponsavel=serializer.validated_data['cpfResponsavel']
+            )
+            comprador.set_password(serializer.validated_data['password'])
+            comprador.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT','DELETE'])
 def apiFornecedoresDetalhe(request,id):
@@ -108,6 +126,7 @@ def apiCompradoresDetalhe(request,id):
    
  
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def apiProdutolista(request):
     if request.method == 'GET':
         produto = Produto.objects.all()
@@ -124,6 +143,7 @@ def apiProdutolista(request):
 
 
 @api_view(['GET','PUT','DELETE'])
+@permission_classes([IsAuthenticated])
 def apiProdutosDetalhe(request,id):
     
     try:
