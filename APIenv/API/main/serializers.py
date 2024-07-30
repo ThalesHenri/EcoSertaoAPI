@@ -49,27 +49,18 @@ class ProdutoSerializer(serializers.ModelSerializer):
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     cnpj = serializers.CharField()
     password = serializers.CharField(write_only=True)
-    token = serializers.SerializerMethodField()
-
-    def get_token(self, obj):
-        return RefreshToken.for_user(obj).access_token
 
     def validate(self, attrs):
         cnpj = attrs.get('cnpj')
         password = attrs.get('password')
 
-        try:
-            user = Fornecedor.objects.get(cnpj=cnpj)
-            if not check_password(password, user.password):
-                raise serializers.ValidationError('Incorrect credentials')
-        except Fornecedor.DoesNotExist:
-            try:
-                user = Comprador.objects.get(cnpj=cnpj)
-                if not check_password(password, user.password):
-                    raise serializers.ValidationError('Incorrect credentials')
-            except Comprador.DoesNotExist:
-                raise serializers.ValidationError('Incorrect credentials')
+        # Authenticate user
+        user = authenticate(cnpj=cnpj, password=password)
 
+        if not user:
+            raise serializers.ValidationError('Incorrect credentials')
+
+        # Generate tokens
         refresh = RefreshToken.for_user(user)
 
         return {

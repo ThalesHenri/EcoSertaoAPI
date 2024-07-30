@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenObtainPairView
 import logging
 
@@ -21,6 +21,7 @@ class ProtectedView(APIView):
     def get(self, request):
         return Response(data={"message": "This is a protected view!"}, status=200)
 
+
 class UserDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -31,13 +32,27 @@ class UserDetailView(APIView):
             logger.warning("User not authenticated.")
             raise AuthenticationFailed('Authentication credentials were not provided.')
         
-        logger.info(f"User authenticated: {user.username}")
-        user_data = {
-            'username': user.username,
-            'email': user.email,
-            # Add other fields as necessary
-        }
+        # Check the type of user and fetch data accordingly
+        if isinstance(user, Fornecedor):
+            user_data = {
+                'nome': user.nome,
+                'cnpj': user.cnpj,
+                # Add other fields as necessary
+            }
+        elif isinstance(user, Comprador):
+            user_data = {
+                'nome': user.nome,
+                'cnpj': user.cnpj,
+                # Add other fields as necessary
+            }
+        else:
+            logger.error("Unknown user type.")
+            raise AuthenticationFailed('Unknown user type.')
+
+        logger.info(f"User authenticated: {user_data}")
         return Response(user_data)
+    
+    
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 

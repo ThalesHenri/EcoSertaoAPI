@@ -171,3 +171,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Adicionei esta linha para implementar imagens nos campos dos modelos
 MEDIA_URL = '/midia/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'midia')
+
+AUTHENTICATION_BACKENDS = [
+    'main.backends.CNPJAuthBackend',  # Adjust the path if your app name is different
+    'django.contrib.auth.backends.ModelBackend',
+]
+
