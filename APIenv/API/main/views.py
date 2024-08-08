@@ -11,6 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 import logging
 
 logger = logging.getLogger(__name__)
@@ -37,12 +38,14 @@ class UserDetailView(APIView):
             user_data = {
                 'nome': user.nome,
                 'cnpj': user.cnpj,
+                'responsavel': user.responsavel
                 # Add other fields as necessary
             }
         elif isinstance(user, Comprador):
             user_data = {
                 'nome': user.nome,
                 'cnpj': user.cnpj,
+                'responsavel': user.responsavel
                 # Add other fields as necessary
             }
         else:
@@ -55,6 +58,23 @@ class UserDetailView(APIView):
     
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        refresh_token = request.data.get('refresh')
+        
+        if not refresh_token:
+            return Response({"detail": "Refresh token required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # Blacklist the refresh token
+            return Response({"detail": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+        except TokenError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except InvalidToken as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login(request):
@@ -82,6 +102,7 @@ def login(request):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     })
+
 
 @api_view(['GET', 'POST'])
 def apiFornecedoresLista(request):

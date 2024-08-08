@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import ProtectedView,UserDetailView
+from .views import ProtectedView,UserDetailView,LogoutView
 
 
 urlpatterns = [
@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/protected/',ProtectedView.as_view(),name='protected_view' ),
     path('api/protected/userdetail',UserDetailView.as_view(),name='user_detail'),
+    path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/login/', views.login, name='login')  # Added login endpoint
 ]
 
