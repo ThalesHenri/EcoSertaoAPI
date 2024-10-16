@@ -2,8 +2,8 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
-from .models import Fornecedor, Comprador, Produto
-from .serializers import FornecedorSerializer, CompradorSerializer, ProdutoSerializer, CustomTokenObtainPairSerializer
+from .models import Usuario, Produto
+from .serializers import UsuarioSerializer, ProdutoSerializer, CustomTokenObtainPairSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -13,6 +13,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 import logging
+from django.contrib.contenttypes.models import ContentType
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +35,7 @@ class UserDetailView(APIView):
             raise AuthenticationFailed('Authentication credentials were not provided.')
         
         # Check the type of user and fetch data accordingly
-        if isinstance(user, Fornecedor):
-            user_data = {
-                'nome': user.nome,
-                'cnpj': user.cnpj,
-                'responsavel': user.responsavel
-                # Add other fields as necessary
-            }
-        elif isinstance(user, Comprador):
+        if isinstance(user, Usuario):
             user_data = {
                 'nome': user.nome,
                 'cnpj': user.cnpj,
@@ -76,6 +70,7 @@ class LogoutView(APIView):
         except InvalidToken as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def login(request):
     cnpj = request.data.get('cnpj')
@@ -84,105 +79,68 @@ def login(request):
     if not cnpj or not password:
         return Response({'error': 'CNPJ and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check against Fornecedor and Comprador models
-    try:
-        user = Fornecedor.objects.get(cnpj=cnpj)
-        if not user.check_password(password):
-            raise Fornecedor.DoesNotExist
-    except Fornecedor.DoesNotExist:
-        try:
-            user = Comprador.objects.get(cnpj=cnpj)
-            if not user.check_password(password):
-                raise Comprador.DoesNotExist
-        except Comprador.DoesNotExist:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = None
 
+    # Tentar buscar um Usuario
+    try:
+        user = Usuario.objects.get(cnpj=cnpj)
+        if not user.check_password(password):
+            return Response({'error': 'Invalid password for User'}, status=status.HTTP_401_UNAUTHORIZED)
+        user_type = ContentType.objects.get_for_model(Usuario)
+    except Usuario.edDoesNotExist:
+        # Se não encontrar, tentar buscar um Usuario
+        return Response({'error':'User cant be found'})
+    # Criar um token usando o usuário encontrado
     refresh = RefreshToken.for_user(user)
+
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
-    })
+    }, status=status.HTTP_200_OK)
 
 
+    
 @api_view(['GET', 'POST'])
-def apiFornecedoresLista(request):
+def apiUsuariosLista(request):
     if request.method == 'GET':
-        fornecedor = Fornecedor.objects.all()
-        serializer = FornecedorSerializer(fornecedor, many=True)
+        usuario = Usuario.objects.all()
+        serializer = UsuarioSerializer(usuario, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'POST':
-        serializer = FornecedorSerializer(data=request.data)
+        serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
-            fornecedor = Fornecedor(
+            usuario = Usuario(
                 nome=serializer.validated_data['nome'],
                 cnpj=serializer.validated_data['cnpj'],
                 responsavel=serializer.validated_data['responsavel'],
                 cpfResponsavel=serializer.validated_data['cpfResponsavel']
             )
-            fornecedor.set_password(serializer.validated_data['password'])
-            fornecedor.save()
+            usuario.set_password(serializer.validated_data['password'])
+            usuario.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'POST'])
-def apiCompradoresLista(request):
-    if request.method == 'GET':
-        comprador = Comprador.objects.all()
-        serializer = CompradorSerializer(comprador, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        serializer = CompradorSerializer(data=request.data)
-        if serializer.is_valid():
-            comprador = Comprador(
-                nome=serializer.validated_data['nome'],
-                cnpj=serializer.validated_data['cnpj'],
-                responsavel=serializer.validated_data['responsavel'],
-                cpfResponsavel=serializer.validated_data['cpfResponsavel']
-            )
-            comprador.set_password(serializer.validated_data['password'])
-            comprador.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+@permission_classes([IsAuthenticated])
 @api_view(['GET', 'PUT', 'DELETE'])
-def apiFornecedoresDetalhe(request, id):
+def apiUsuariosDetalhe(request, id):
     try:
-        fornecedor = Fornecedor.objects.get(pk=id)
-    except Fornecedor.DoesNotExist:
+        usuario = Usuario.objects.get(pk=id)
+    except Usuario.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = FornecedorSerializer(fornecedor)
+        serializer = UsuarioSerializer(usuario)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = FornecedorSerializer(fornecedor, data=request.data)
+        serializer = UsuarioSerializer(usuario, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
-        fornecedor.delete()
+        usuario.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def apiCompradoresDetalhe(request, id):
-    try:
-        comprador = Comprador.objects.get(pk=id)
-    except Comprador.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = CompradorSerializer(comprador)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = CompradorSerializer(comprador, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        comprador.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])

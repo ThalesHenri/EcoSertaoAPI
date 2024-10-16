@@ -3,7 +3,6 @@ from .models import *
 # Register your models here.
 
 
-admin.site.register(Fornecedor)
-admin.site.register(Comprador)
+admin.site.register(Usuario)
 admin.site.register(Produto)
                     

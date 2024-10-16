@@ -1,45 +1,29 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Fornecedor, Comprador, Produto
+from .models import Usuario, Produto
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 
-class FornecedorSerializer(serializers.ModelSerializer):
+class UsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = Fornecedor
+        model = Usuario
         fields = ['id', 'nome', 'cnpj', 'responsavel', 'cpfResponsavel', 'password']
 
     def create(self, validated_data):
-        fornecedor = Fornecedor(
+        usuario = Usuario(
             nome=validated_data['nome'],
             cnpj=validated_data['cnpj'],
             responsavel=validated_data['responsavel'],
             cpfResponsavel=validated_data['cpfResponsavel']
         )
-        fornecedor.set_password(validated_data['password'])
-        fornecedor.save()
-        return fornecedor
+        usuario.set_password(validated_data['password'])
+        usuario.save()
+        return usuario
 
-class CompradorSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
 
-    class Meta:
-        model = Comprador
-        fields = ['id', 'nome', 'cnpj', 'responsavel', 'cpfResponsavel', 'password']
-
-    def create(self, validated_data):
-        comprador = Comprador(
-            nome=validated_data['nome'],
-            cnpj=validated_data['cnpj'],
-            responsavel=validated_data['responsavel'],
-            cpfResponsavel=validated_data['cpfResponsavel']
-        )
-        comprador.set_password(validated_data['password'])
-        comprador.save()
-        return comprador
 
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:

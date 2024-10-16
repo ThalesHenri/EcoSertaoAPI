@@ -11,11 +11,9 @@ from .views import ProtectedView,UserDetailView,LogoutView
 
 
 urlpatterns = [
-    path('api/fornecedores/',views.apiFornecedoresLista ),
-    path('api/compradores/', views.apiCompradoresLista),
+    path('api/usuario/',views.apiUsuariosLista ),
     path('api/produto/', views.apiProdutolista),
-    path('api/fornecedores/<int:id>/', views.apiFornecedoresDetalhe),
-    path('api/compradores/<int:id>/', views.apiCompradoresDetalhe),
+    path('api/usuario/<int:id>/', views.apiUsuariosDetalhe),
     path('api/produto/', views.apiProdutolista),
     path('api/produto/<int:id>/',views.apiProdutosDetalhe),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

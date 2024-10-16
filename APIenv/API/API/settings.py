@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-$fv=14!0y8_jts7yok146k_60uzlk)#u7!=h&q4$mp^iag5=nq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.0.10"]
 
 # Application definition
 
@@ -146,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'main.Comprador'  # Make sure this matches your custom user model
+AUTH_USER_MODEL = 'main.Usuario'  # Make sure this matches your custom user model
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

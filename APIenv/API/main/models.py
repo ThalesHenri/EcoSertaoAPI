@@ -17,7 +17,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(cnpj, password, **extra_fields)
 
-class Fornecedor(AbstractBaseUser):
+class Usuario(AbstractBaseUser):
     cnpj = models.CharField(max_length=20, unique=True)
     nome = models.CharField(max_length=100)
     responsavel = models.CharField(max_length=100, default="SemValorInserido")
@@ -40,32 +40,9 @@ class Fornecedor(AbstractBaseUser):
         return check_password(raw_password, self.password)
 
     def __str__(self):
-        return 'Fornecedor: ' + self.nome
+        return 'Usuario: ' + self.nome
 
-class Comprador(AbstractBaseUser):
-    cnpj = models.CharField(max_length=20, unique=True)
-    nome = models.CharField(max_length=100)
-    responsavel = models.CharField(max_length=100, default="SemValorInserido")
-    cpfResponsavel = models.CharField(max_length=30)
-    password = models.CharField(max_length=128, default=make_password('senha123'))
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
 
-    objects = CustomUserManager()
-
-    USERNAME_FIELD = 'cnpj'
-    REQUIRED_FIELDS = ['nome', 'responsavel', 'cpfResponsavel']
-
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)
-        self.save()
-
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
-
-    def __str__(self):
-        return 'Comprador: ' + self.nome
 
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
@@ -85,3 +62,4 @@ class Produto(models.Model):
 
     def __str__(self):
         return 'Produto: ' + self.nome
+
