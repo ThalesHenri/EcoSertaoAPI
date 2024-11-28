@@ -22,22 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# modificado por Dennis 3/09/2024
+
 SECRET_KEY = os.getenv('SECRET_KEY', 'change-me') 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# modificado por Dennis 3/09/2024
-DEBUG = bool(int(os.getenv('DEBUG', 0))) # coleta informações nas variaveis de ambiente
 
-<<<<<<< HEAD:APIenv/API/API/settings.py
-ALLOWED_HOSTS = ["192.168.0.10"]
-=======
-# modificado por Dennis 3/09/2024
-ALLOWED_HOSTS = [
-    h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',')
-    if h.strip()
-]
->>>>>>> e5d9fcdd383a050271b0abc638e2d12811d416bf:ecoApi/ecoApi/settings.py
+
+ALLOWED_HOSTS = []
+DEBUG = True # coleta informações nas variaveis de ambiente
+
+
+
 
 # Application definition
 
@@ -135,12 +130,8 @@ WSGI_APPLICATION = 'ecoApi.wsgi.application'
 # modificado por Dennis 3/09/2024
 DATABASES = {
     'default': {
-       'ENGINE': os.getenv('DB_ENGINE', 'change-me'),
-       'NAME': os.getenv('POSTGRES_DB', 'change-me'),
-       'USER': os.getenv('POSTGRES_USER', 'change-me'),
-       'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'change-me'),
-       'HOST': os.getenv('POSTGRES_HOST', 'change-me'),
-       'PORT': os.getenv('POSTGRES_PORT', 'change-me')
+       'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
